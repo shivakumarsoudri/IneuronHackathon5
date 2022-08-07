@@ -1,0 +1,196 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CONNECTION TO METAMASK</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.2.7-rc.0/web3.min.js"></script>
+	<script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <style>
+        body {
+            background-color: palevioletred;
+            font-size: 33px;
+            text-align: center;
+        }
+        button {
+            background-color: aquamarine;
+            font-size: 33px;
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+        }
+        button:hover {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+	<button onclick="connectMetamask()">CONNECT TO METAMASK</button> <br>
+	<p id="accountArea"></p>
+	<button onclick="connectContract()">CONNECT TO CONTRACT</button> <br>
+	<p id="contractArea"></p>
+	
+	<div>
+		<input id="depositamt"/>
+		<button id="btndeposit" submit="false">donateamouunt</button>
+	</div><br>
+	<div>
+		<input id="creator"/>
+		<button id="btncreator" submit="false">creatorcreator</button>
+	</div><br>
+	
+    <script>
+        //1- connect metamask
+        let account;
+        const connectMetamask = async () => {
+            if(window.ethereum !== "undefined") {
+                const accounts = await ethereum.request({method: "eth_requestAccounts"});
+                account = accounts[0];
+                document.getElementById("accountArea").innerHTML = account;
+            }
+        }
+
+        //2- connect to smart contract
+        const connectContract = async () => {
+            const ABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "creatorName",
+				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "creatorOwner",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "donar",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			}
+		],
+		"name": "donated",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "donate",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "name",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address payable",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "receivedAmount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+            const Address = "0x358AA13c52544ECCEF6B0ADD0f801012ADAD5eE3";
+            window.web3 = await new Web3(window.ethereum);
+            window.contract = await new window.web3.eth.Contract( ABI, Address); 
+            document.getElementById("contractArea").innerHTML = "connected to smart contract";
+        }
+
+		$("#btndeposit").click(function(){
+					donate($("#depositamt").val());
+				});
+		
+        //3-read data from smart contract
+        function donate(_amount) {
+				// This is going to take a while, so update the UI to let the user know
+				// the transaction has been sent
+			$("#dataArea").text("Transaction in progress...");
+				var donateAmount = web3.utils.toWei(parseFloat(_amount).toString(), 'ether');
+				// Send the tx to our contract:
+			return window.contract.methods.donate()
+			.send({ from: account, value: donateAmount.toString() })
+			.on("receipt", function(receipt) {
+					$("#depositamt").text("Tx ID: " + receipt.transactionHash);
+					console.log(receipt);
+				})
+				.on("error", function(error) {
+					$("#depositamt").text(error);
+				});
+
+				$("#btncreator").click(function(){
+			createCreator($("#creator").val());
+				});
+				function createCreator(creatorName) {
+					console.log(done);
+				// This is going to take a while, so update the UI to let the user know
+				// the transaction has been sent
+			//$("#dataArea").text("Transaction in progress...");
+				//var donateAmount = web3.utils.toWei(parseFloat(_amount).toString(), 'ether');
+				// Send the tx to our contract:
+			return window.contract.methods.createCreator()
+			  console.log(done);
+				}
+			//.send({ from: account, value: donateAmount.toString() })
+			//.on("receipt", function(receipt) {
+				//	$("#depositamt").text("Tx ID: " + receipt.transactionHash);
+					console.log(receipt);
+				//})
+				//.on("error", function(error) {
+					$("#depositamt").text(error);
+				//});
+              
+
+
+			}
+        
+    </script>
+</body>
+</html>
